@@ -14,7 +14,7 @@ company_table = Table(api_key, 'appDLr6e0UiouhRNJ', 'tblPdEGdqEjFPHPBD')
 
 st.title("Get new brands to review")
 
-email = st.text_input("Email", disabled=False)
+email = st.text_input("Email", disabled=False).strip()
 if email: 
     st.write('Getting record...')
 
