@@ -16,8 +16,8 @@ st.title("Get new brands to review")
 
 email = st.text_input("Email", disabled=False).strip()
 if email: 
+    print(email)
     st.write('Getting record...')
-
     res_formula = match({'email':email})
     reviewerRecord = researchers_table.first(formula=res_formula)
     maxReviews = 10
@@ -31,6 +31,7 @@ if email:
             st.write("Sorry, you've done your limit for now.")
             st.write("Reviews today: ", reviewerRecord['fields']['# Reviews today'])
             st.write("Reviews this month: ", reviewerRecord['fields']['# Reviews this month'])
+            print("at limit")
         else:
             time_to_process = st.button("Request reviews")
             if time_to_process:
@@ -67,6 +68,7 @@ if email:
                             reviews_table.create({'Researcher':[reviewerRecord['id']], 'Company (seo)': [company_id]})
                             revCount+=1
                             companiesDone.append(company['seoName'])
+                            print("adding ", company['seoName'], company_id)
 
                             if revCount>=maxReviews:
     #                            print("all done!")
