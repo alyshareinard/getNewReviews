@@ -91,7 +91,7 @@ def get_reviews(reviewerRecord):
 
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
                     response_df = pd.DataFrame({"Company":companyNames, "Brand or Product":brandProduct, "Company URL":companyUrls, "Product URL":productUrls, "Wherefrom URL":wherefromUrls, "Size":companySizes})
-
+                    response_df.index = response_df.index + 1                    
                     pd.set_option('display.max_colwidth', None)
                     st.markdown(response_df.to_html(render_links=True),unsafe_allow_html=True)
                     
