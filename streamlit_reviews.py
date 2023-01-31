@@ -155,9 +155,9 @@ if email:
             companiesDone=[]
 
         print("Num companies already done ", len(companiesDone))
-#        if reviewerRecord['fields']["Available for reviews"]=="False":
-        limit=False
-        if limit==True:
+        if reviewerRecord['fields']["Available for reviews"]=="False":
+#        limit=False
+#        if limit==True:
             st.write("Sorry, you've done your limit for now.")
             print("at limit")
         else:
