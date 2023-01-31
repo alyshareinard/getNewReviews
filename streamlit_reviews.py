@@ -12,6 +12,7 @@ from pyairtable import Api, Base, Table
 
 def get_reviews(reviewerRecord):
     get_more=False
+    
     st.write("Getting companies.  This will take a minute... ")
     reviewerGender = reviewerRecord['fields']['Gender'].lower()
     batch_size = 10
@@ -50,7 +51,7 @@ def get_reviews(reviewerRecord):
             #print(companiesDone)
             if (company['seoName'] not in companiesDone and genderNeeded!=genderToAvoid) and 'Company name' in company.keys():
 #                        print(company['fields']['Company name'])
-                print(company.keys())
+              #  print(company.keys())
                 companyNames.append(company['Company name'])
                 companiesDone.append(company['seoName'])
 
@@ -91,9 +92,12 @@ def get_reviews(reviewerRecord):
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
                     response_df = pd.DataFrame({"Company":companyNames, "Brand or Product":brandProduct, "Company URL":companyUrls, "Product URL":productUrls, "Wherefrom URL":wherefromUrls, "Size":companySizes})
 
-                    pd.set_option('display.max_colwidth', -1)
+                    pd.set_option('display.max_colwidth', None)
                     st.markdown(response_df.to_html(render_links=True),unsafe_allow_html=True)
+                    
                     done=True
+                    if doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
+                        reviewerRecord['fields']["Available for reviews"]=0
                     break
 
 #    more_reviews_button = st.button("Done with this set?", key="more_reviews")
@@ -141,7 +145,7 @@ get_more=False
 
 email = st.text_input("Email", disabled=False).strip()
 if email: 
-    print(email)
+#    print(email)
     st.write('Getting record...')
     res_formula = match({'email':email})
     reviewerRecord = researchers_table.first(formula=res_formula)
@@ -156,14 +160,14 @@ if email:
         else:
             companiesDone=[]
 
-        if reviewerRecord['fields']["Available for reviews"]=="False":
+        if reviewerRecord['fields']["Available for reviews"]==0:
 
             st.write("Sorry, you've done your limit for now.")
-            print("at limit")
+#            print("at limit")
         else:
             time_to_process_button = st.button("Request reviews", key="time_to_process")
     else:
         st.write("Reviewer not found -- enter email again")
 
-if st.session_state.time_to_process or get_more==True:
+if st.session_state.time_to_process and reviewerRecord['fields']["Available for reviews"]==1:
     get_reviews(reviewerRecord)
