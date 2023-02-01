@@ -122,9 +122,6 @@ def color_products(s):
 if 'load_state' not in st.session_state:
     st.session_state.load_state = False
 
-if 'time_to_process' not in st.session_state:
-    st.session_state['time_to_process'] = False
-
 if 'dups' not in st.session_state:
     st.session_state['dups'] = False
 
@@ -178,9 +175,10 @@ if email:
             st.write("Sorry, you've done your limit for now.")
 #            print("at limit")
         else:
-            time_to_process_button = st.button("Request reviews", key="time_to_process")
+            time_to_process_button = st.button("Request reviews")
+            if st.session_state and reviewerRecord['fields']["Available for reviews"]==1:
+                get_reviews(reviewerRecord)
     else:
         st.write("Reviewer not found -- enter email again")
 
-if st.session_state.time_to_process and reviewerRecord['fields']["Available for reviews"]==1:
-    get_reviews(reviewerRecord)
+
