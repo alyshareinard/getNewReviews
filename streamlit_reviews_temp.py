@@ -6,6 +6,7 @@ api_key = st.secrets["api_key"]
 
 import pandas as pd
 from pyairtable.formulas import match
+
 from pyairtable import Api, Base, Table
 
 
@@ -87,9 +88,7 @@ def get_reviews(reviewerRecord):
                     companyCount=1
                 researchers_table.update(reviewerRecord['id'], {"reviewed seos":"['" + "', '".join(companiesDone)+"']", "# Reviews today":reviewerRecord["fields"]["# Reviews today"]+revCount, "# Reviews this month":reviewerRecord["fields"]["# Reviews this month"]+revCount})#, "Companies reviewed":"[" + ", ".join(linked_companies)+"]"})
                 company_table.update(company_id, {"Reviews done this week":companyCount})
-                reviews_table.create({'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
-
-
+                reviews_table.create({'reviewer email':[reviewerRecord['fields']['Email']], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
                     response_df = pd.DataFrame({"Company":companyNames, "Brand or Product":brandProduct, "Company URL":companyUrls, "Product URL":productUrls, "Wherefrom URL":wherefromUrls, "Size":companySizes})
                     response_df.index = response_df.index + 1                    
@@ -122,8 +121,6 @@ def color_products(s):
 if 'load_state' not in st.session_state:
     st.session_state.load_state = False
 
-if 'time_to_process' not in st.session_state:
-    st.session_state['time_to_process'] = False
 
 if 'dups' not in st.session_state:
     st.session_state['dups'] = False
@@ -141,18 +138,18 @@ reviews_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tblxayMvcreRucnK2')
 st.title("Get new brands to review.")
 get_more=False
 
-email = st.text_input("Email", disabled=False).strip()
+email = st.text_input("Email", disabled=False).strip().lower()
 if email: 
 #    print(email)
     st.write('Getting record...')
-    res_formula = match({'email':email})
+    res_formula = match({'email'.lower():email})
     reviewerRecord = researchers_table.first(formula=res_formula)
     maxReviews = 10
     if reviewerRecord:
         if "Last Modified" in reviewerRecord['fields']:
             last_modified = datetime.strptime(reviewerRecord['fields']['Last Modified'], '%Y-%m-%dT%H:%M:%S.%fZ')
-#            print(date.today())
-#            print(last_modified.date())
+            print(date.today())
+            print(last_modified.date())
             if last_modified.date()<date.today():
                 reviewerRecord['fields']['# Reviews today'] = 0
                 if last_modified.month<date.today().month:
@@ -178,9 +175,9 @@ if email:
             st.write("Sorry, you've done your limit for now.")
 #            print("at limit")
         else:
-            time_to_process_button = st.button("Request reviews", key="time_to_process")
+            time_to_process = st.button("Request reviews")
     else:
         st.write("Reviewer not found -- enter email again")
 
-if st.session_state.time_to_process and reviewerRecord['fields']["Available for reviews"]==1:
+if time_to_process and reviewerRecord['fields']["Available for reviews"]==1:
     get_reviews(reviewerRecord)
