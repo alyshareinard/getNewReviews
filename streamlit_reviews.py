@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+from datetime import datetime, date
 
 
 api_key = st.secrets["api_key"]
@@ -116,10 +117,7 @@ def color_products(s):
     else:
         return ['background-color: black']*len(s)
 
-def process_dups():
-    print('in callback')
-    print(st.session_state.data.data.keys()) 
-    print(st.session_state.data)
+
 
 if 'load_state' not in st.session_state:
     st.session_state.load_state = False
@@ -151,7 +149,22 @@ if email:
     reviewerRecord = researchers_table.first(formula=res_formula)
     maxReviews = 10
     if reviewerRecord:
-        st.write('Welcome ', reviewerRecord['fields']['Researcher name'])
+        if "Last Modified" in reviewerRecord['fields']:
+            last_modified = datetime.strptime(reviewerRecord['fields']['Last Modified'], '%Y-%m-%dT%H:%M:%S.%fZ')
+            print(date.today())
+            print(last_modified.date())
+            if last_modified.date()<date.today():
+                reviewerRecord['fields']['# Reviews today'] = 0
+                if last_modified.month<date.today().month:
+                    reviewerRecord['fields']['# Reviews this month'] = 0
+                if reviewerRecord['fields']['# Reviews this month']<reviewerRecord['fields']['monthly limit']:
+                    reviewerRecord['fields']['Available for reviews']=1
+                if reviewerRecord['fields']['# Reviews today']<reviewerRecord['fields']['daily limit']:
+                    reviewerRecord['fields']['Available for reviews']=1
+        if 'Researcher name' in reviewerRecord['fields']:
+            st.write('Welcome ', reviewerRecord['fields']['Researcher name'])
+        else:
+            st.write('Welcome')
         st.write("Reviews today: ", reviewerRecord['fields']['# Reviews today'])
         st.write("Reviews this month: ", reviewerRecord['fields']['# Reviews this month'])
         if 'reviewed seos' in reviewerRecord['fields']:
