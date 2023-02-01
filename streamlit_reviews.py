@@ -141,11 +141,11 @@ company_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tbl92zocl5cINJnyg')
 st.title("Get new brands to review.")
 get_more=False
 
-email = st.text_input("Email", disabled=False).strip()
+email = st.text_input("Email", disabled=False).strip().lower()
 if email: 
 #    print(email)
     st.write('Getting record...')
-    res_formula = match({'email':email})
+    res_formula = match({'email'.lower():email})
     reviewerRecord = researchers_table.first(formula=res_formula)
     maxReviews = 10
     if reviewerRecord:
