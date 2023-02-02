@@ -8,6 +8,42 @@ import pandas as pd
 from pyairtable.formulas import match
 from pyairtable import Api, Base, Table
 
+def get_previous(email):
+    st.write("Accessing database...")
+    print(email)
+    rev_formula = match({'reviewer email':email})
+    reviews = pd.DataFrame(reviews_table.all(formula=rev_formula, sort=["-date"]))
+    reviews = reviews['fields']
+    companyURL=[]
+    productURL=[]
+    wherefromURL=[]
+    date=[]
+    for review in reviews:
+        print(review)
+        if 'company URL' in review:
+            companyURL.append(review['company URL'])
+        else:
+            companyURL.append("")
+        if 'product URL' in review:
+            productURL.append(review['product URL'])
+        else:
+            productURL.append("")
+        if 'wherefrom URL' in review:
+            wherefromURL.append(review['wherefrom URL'])
+        else:
+            wherefromURL.append("")
+        if 'date' in review:
+            date.append(review['date'])
+        else:
+            date.append("")
+
+#    reviews = pd.DataFrame(reviews['fields'])
+    print(companyURL)
+    print(len(reviews))
+    response_df = pd.DataFrame({"Company URL":companyURL, "Product URL":productURL, "Wherefrom URL":wherefromURL, "Date":date})
+    response_df.index = response_df.index + 1                    
+    pd.set_option('display.max_colwidth', None)
+    st.markdown(response_df.to_html(render_links=True),unsafe_allow_html=True)
 
 def get_reviews(reviewerRecord):
     get_more=False
@@ -50,7 +86,7 @@ def get_reviews(reviewerRecord):
             #print(companiesDone)
             if (company['seoName'] not in companiesDone and genderNeeded!=genderToAvoid) and 'Company name' in company.keys():
 #                        print(company['fields']['Company name'])
-              #  print(company.keys())
+            #  print(company.keys())
                 companyNames.append(company['Company name'])
                 companiesDone.append(company['seoName'])
 
@@ -148,8 +184,8 @@ if email:
     if reviewerRecord:
         if "Last Modified" in reviewerRecord['fields']:
             last_modified = datetime.strptime(reviewerRecord['fields']['Last Modified'], '%Y-%m-%dT%H:%M:%S.%fZ')
-#            print(date.today())
-#            print(last_modified.date())
+            print(date.today())
+            print(last_modified.date())
             if last_modified.date()<date.today():
                 reviewerRecord['fields']['# Reviews today'] = 0
                 if last_modified.month<date.today().month:
@@ -175,9 +211,13 @@ if email:
             st.write("Sorry, you've done your limit for now.")
 #            print("at limit")
         else:
-            time_to_process_button = st.button("Request reviews")
-            if st.session_state and reviewerRecord['fields']["Available for reviews"]==1:
+            time_to_process = st.button("Request reviews")
+            get_recent_reviews = st.button("See recent assigned companies")
+            if time_to_process and reviewerRecord['fields']["Available for reviews"]==1:
                 get_reviews(reviewerRecord)
+            if get_recent_reviews:
+                get_previous(email)
+
     else:
         st.write("Reviewer not found -- enter email again")
 
