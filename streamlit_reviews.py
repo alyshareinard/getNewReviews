@@ -10,7 +10,7 @@ from pyairtable import Api, Base, Table
 
 def get_previous(email):
     st.write("Accessing database...")
-    print(email)
+#    print(email)
     rev_formula = match({'reviewer email':email})
     reviews = pd.DataFrame(reviews_table.all(formula=rev_formula, sort=["-date"]))
     reviews = reviews['fields']
@@ -19,7 +19,7 @@ def get_previous(email):
     wherefromURL=[]
     date=[]
     for review in reviews:
-        print(review)
+        #print(review)
         if 'company URL' in review:
             companyURL.append(review['company URL'])
         else:
@@ -38,8 +38,8 @@ def get_previous(email):
             date.append("")
 
 #    reviews = pd.DataFrame(reviews['fields'])
-    print(companyURL)
-    print(len(reviews))
+#    print(companyURL)
+#    print(len(reviews))
     response_df = pd.DataFrame({"Company URL":companyURL, "Product URL":productURL, "Wherefrom URL":wherefromURL, "Date":date})
     response_df.index = response_df.index + 1                    
     pd.set_option('display.max_colwidth', None)
@@ -184,8 +184,8 @@ if email:
     if reviewerRecord:
         if "Last Modified" in reviewerRecord['fields']:
             last_modified = datetime.strptime(reviewerRecord['fields']['Last Modified'], '%Y-%m-%dT%H:%M:%S.%fZ')
-            print(date.today())
-            print(last_modified.date())
+#            print(date.today())
+#            print(last_modified.date())
             if last_modified.date()<date.today():
                 reviewerRecord['fields']['# Reviews today'] = 0
                 if last_modified.month<date.today().month:
