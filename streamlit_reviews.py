@@ -207,7 +207,9 @@ if email:
             companiesDone=[]
 
         if reviewerRecord['fields']["Available for reviews"]==0:
-
+            get_recent_reviews = st.button("See recent assigned companies")
+            if get_recent_reviews:
+                get_previous(email)
             st.write("Sorry, you've done your limit for now.")
 #            print("at limit")
         else:
