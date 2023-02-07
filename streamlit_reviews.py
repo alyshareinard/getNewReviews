@@ -159,23 +159,34 @@ def color_products(s):
     else:
         return ['background-color: black']*len(s)
 
+def refreshCompanyRecords():
+    companies = company_table.all()
+
+    
+    toUpdate = []
+    for companies in company_table.iterate(view='Priority', page_size=100):
+        for company in companies:
+            toUpdate.append({'id':company['id'], 'fields': {"Reviews done this week":0}})
+        
+    company_table.batch_update(toUpdate)
+    config_table.update('recNFlBVjktXhg6oX', {"value":False})
+#        for companyRecord in companies:
+#                    print(company['id'])
+#            company_id=companyRecord['id']
+#            company_table.update(company_id, {"Reviews done this week":0})
 
 
-if 'load_state' not in st.session_state:
-    st.session_state.load_state = False
-
-if 'dups' not in st.session_state:
-    st.session_state['dups'] = False
-
-if 'data' not in st.session_state:
-    st.session_state['data'] = []
-
-if 'more_reviews' not in st.session_state:
-    st.session_state['more_reviews'] = False
+########################### main code starts ###############
 
 researchers_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tblTqaq5Xtwlin7Vj')
 company_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tbl92zocl5cINJnyg')
 reviews_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tblxayMvcreRucnK2')
+config_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tblRLk4Z5AjPAUldY')
+
+refresh_companies = config_table.get('recNFlBVjktXhg6oX')
+if 'value' in refresh_companies['fields']:
+    print("need to refresh!", refresh_companies)
+    refreshCompanyRecords()
 
 st.title("Get new brands to review.")
 get_more=False
