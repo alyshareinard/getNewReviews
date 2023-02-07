@@ -129,7 +129,7 @@ def get_reviews(reviewerRecord):
                     companyCount=1
                 researchers_table.update(reviewerRecord['id'], {"reviewed seos":"['" + "', '".join(companiesDone)+"']", "# Reviews today":reviewerRecord["fields"]["# Reviews today"]+revCount, "# Reviews this month":reviewerRecord["fields"]["# Reviews this month"]+revCount})#, "Companies reviewed":"[" + ", ".join(linked_companies)+"]"})
                 company_table.update(company_id, {"Reviews done this week":companyCount})
-                reviews_table.create({'company name':companyNames,'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
+                reviews_table.create({'company name':companyNames[-1],'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
 
 
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
