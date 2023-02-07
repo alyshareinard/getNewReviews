@@ -45,6 +45,12 @@ def get_previous(email):
     pd.set_option('display.max_colwidth', None)
     st.markdown(response_df.to_html(render_links=True),unsafe_allow_html=True)
 
+    st.download_button(
+        label="Download CSV file",
+        data=response_df.to_csv().encode('utf-8'),
+        file_name='assigned_reviews.csv',
+        mime='text/csv'
+    )
 def get_reviews(reviewerRecord):
     get_more=False
     
@@ -123,7 +129,7 @@ def get_reviews(reviewerRecord):
                     companyCount=1
                 researchers_table.update(reviewerRecord['id'], {"reviewed seos":"['" + "', '".join(companiesDone)+"']", "# Reviews today":reviewerRecord["fields"]["# Reviews today"]+revCount, "# Reviews this month":reviewerRecord["fields"]["# Reviews this month"]+revCount})#, "Companies reviewed":"[" + ", ".join(linked_companies)+"]"})
                 company_table.update(company_id, {"Reviews done this week":companyCount})
-                reviews_table.create({'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
+                reviews_table.create({'company name':companyNames,'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
 
 
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
