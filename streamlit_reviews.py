@@ -17,9 +17,24 @@ def get_previous(email):
     companyURL=[]
     productURL=[]
     wherefromURL=[]
+    BrandProduct = []
+    companyName=[]
+    size=[]
     date=[]
     for review in reviews:
         #print(review)
+        if 'company name' in review:
+            companyName.append(review['company name'])
+        else:
+            companyName.append("")
+        if 'Brand or Product' in review:
+            BrandProduct.append(review['Brand or Product'])
+        else:
+            BrandProduct.append("")
+        if 'size' in review:
+            size.append(review['size'])
+        else:
+            size.append("")
         if 'company URL' in review:
             companyURL.append(review['company URL'])
         else:
@@ -40,7 +55,7 @@ def get_previous(email):
 #    reviews = pd.DataFrame(reviews['fields'])
 #    print(companyURL)
 #    print(len(reviews))
-    response_df = pd.DataFrame({"Company URL":companyURL, "Product URL":productURL, "Wherefrom URL":wherefromURL, "Date":date})
+    response_df = pd.DataFrame({"Company":companyName, "Brand or Product":BrandProduct, "Company URL":companyURL, "Product URL":productURL, "Wherefrom URL":wherefromURL, "Size":size, "Date":date})
     response_df.index = response_df.index + 1                    
     pd.set_option('display.max_colwidth', None)
     st.markdown(response_df.to_html(render_links=True),unsafe_allow_html=True)
@@ -127,9 +142,9 @@ def get_reviews(reviewerRecord):
                     companyCount = company["Reviews done this week"]+1
                 else:
                     companyCount=1
-                researchers_table.update(reviewerRecord['id'], {"reviewed seos":"['" + "', '".join(companiesDone)+"']", "# Reviews today":reviewerRecord["fields"]["# Reviews today"]+revCount, "# Reviews this month":reviewerRecord["fields"]["# Reviews this month"]+revCount})#, "Companies reviewed":"[" + ", ".join(linked_companies)+"]"})
+                researchers_table.update(reviewerRecord['id'], {"Last review assigned":str(date.today()), "reviewed seos":"['" + "', '".join(companiesDone)+"']", "# Reviews today":reviewerRecord["fields"]["# Reviews today"]+revCount, "# Reviews this month":reviewerRecord["fields"]["# Reviews this month"]+revCount})#, "Companies reviewed":"[" + ", ".join(linked_companies)+"]"})
                 company_table.update(company_id, {"Reviews done this week":companyCount})
-                reviews_table.create({'company name':companyNames[-1],'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1]})
+                reviews_table.create({'company name':companyNames[-1], "Brand or Product":brandProduct[-1],'reviewer email':reviewerRecord['fields']['Email'], 'seoname': company['seoName'], 'product URL':productUrls[-1], 'company URL':companyUrls[-1], 'wherefrom URL':wherefromUrls[-1], "size":companySizes[-1]})
 
 
                 if revCount>=batch_size or doneToday+revCount>=dailyLimit or doneThisMonth+revCount>=monthlylimit:
@@ -185,7 +200,6 @@ config_table = Table(api_key, 'appXAmOdVlbrsjpKm', 'tblRLk4Z5AjPAUldY')
 
 refresh_companies = config_table.get('recNFlBVjktXhg6oX')
 if 'value' in refresh_companies['fields']:
-    print("need to refresh!", refresh_companies)
     refreshCompanyRecords()
 
 st.title("Get new brands to review.")
@@ -199,8 +213,8 @@ if email:
     reviewerRecord = researchers_table.first(formula=res_formula)
     maxReviews = 10
     if reviewerRecord:
-        if "Last Modified" in reviewerRecord['fields']:
-            last_modified = datetime.strptime(reviewerRecord['fields']['Last Modified'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        if "Last review assigned" in reviewerRecord['fields']:
+            last_modified = datetime.strptime(reviewerRecord['fields']['Last review assigned'], '%Y-%m-%d')#T%H:%M:%S.%fZ')
 #            print(date.today())
 #            print(last_modified.date())
             if last_modified.date()<date.today():
